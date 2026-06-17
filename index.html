@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IELTS Academic Speaking Simulator — LBEnglishCo</title>
+<style>
+  :root{
+    --bg:#f4f6f9; --card:#ffffff; --ink:#1f2933; --muted:#5b6b7b;
+    --line:#e2e8f0; --brand:#1f6feb; --brand-d:#1550b3; --good:#1f9d57;
+    --warn:#b7791f; --amber-bg:#fff6e6; --amber-br:#f0c36d; --red:#c0392b;
+    --shadow:0 2px 10px rgba(20,40,80,.07);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+  header.top{background:linear-gradient(135deg,#1550b3,#1f6feb);color:#fff;padding:18px 20px}
+  header.top h1{margin:0;font-size:1.28rem;letter-spacing:.2px}
+  header.top p{margin:4px 0 0;opacity:.92;font-size:.86rem}
+  .wrap{max-width:880px;margin:0 auto;padding:18px 16px 60px}
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 18px}
+  .tabs button{flex:1 1 auto;min-width:120px;background:var(--card);border:1px solid var(--line);
+    color:var(--muted);padding:10px 8px;border-radius:10px;cursor:pointer;font-size:.9rem;font-weight:600;
+    transition:.15s}
+  .tabs button.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .tabs button:hover{border-color:var(--brand)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;
+    box-shadow:var(--shadow);margin-bottom:16px}
+  .examiner{display:flex;gap:14px;align-items:flex-start;margin-bottom:6px}
+  .avatar{flex:0 0 52px;width:52px;height:52px;border-radius:50%;
+    background:linear-gradient(135deg,#1f6feb,#52a0ff);display:flex;align-items:center;
+    justify-content:center;color:#fff;font-size:1.5rem;box-shadow:var(--shadow)}
+  .examiner .who{font-weight:700;font-size:.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .examiner .q{font-size:1.18rem;font-weight:600;margin-top:2px}
+  h2{font-size:1.12rem;margin:0 0 12px}
+  h3{font-size:1rem;margin:18px 0 8px}
+  p.lead{color:var(--muted);margin-top:0}
+  .btn{background:var(--brand);color:#fff;border:none;padding:11px 18px;border-radius:9px;
+    font-size:.92rem;font-weight:600;cursor:pointer;transition:.15s}
+  .btn:hover{background:var(--brand-d)}
+  .btn.ghost{background:#fff;color:var(--brand);border:1px solid var(--brand)}
+  .btn.ghost:hover{background:#eef4ff}
+  .btn.rec{background:var(--red)}
+  .btn.rec:hover{background:#9c2c20}
+  .btn.stop{background:#37424d}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .pill{display:inline-block;background:#eef4ff;color:var(--brand);border-radius:999px;
+    padding:3px 11px;font-size:.76rem;font-weight:700;letter-spacing:.4px}
+  .pill.part{background:#e7f7ee;color:var(--good)}
+  .timer{font-variant-numeric:tabular-nums;font-weight:700;font-size:1.5rem;letter-spacing:1px}
+  .timer.warnflash{color:var(--red);animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.4}}
+  .progress{height:7px;background:var(--line);border-radius:6px;overflow:hidden;margin:10px 0}
+  .progress > i{display:block;height:100%;background:var(--brand);width:0;transition:width .3s}
+  canvas.wave{width:100%;height:70px;background:#0e1726;border-radius:8px;display:block;margin:10px 0}
+  audio{width:100%;margin-top:8px}
+  .amber{background:var(--amber-bg);border:1px solid var(--amber-br);border-radius:10px;
+    padding:12px 14px;margin:12px 0;font-size:.9rem}
+  .amber b{color:var(--warn)}
+  .muted{color:var(--muted)}
+  .small{font-size:.84rem}
+  textarea.notes{width:100%;min-height:120px;border:1px solid var(--line);border-radius:10px;
+    padding:12px;font-size:.95rem;font-family:inherit;resize:vertical}
+  .cue{border:2px dashed var(--brand);border-radius:12px;padding:18px;background:#f7faff}
+  .cue h3{margin-top:0;color:var(--brand-d)}
+  .cue ul{margin:8px 0 0;padding-left:20px}
+  .cue li{margin:3px 0}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:620px){.grid{grid-template-columns:1fr}}
+  .crit{border:1px solid var(--line);border-radius:10px;padding:12px}
+  .crit label{font-weight:600;font-size:.92rem;display:block;margin-bottom:6px}
+  .crit .scale{display:flex;gap:5px;flex-wrap:wrap}
+  .crit .scale button{flex:1;min-width:30px;border:1px solid var(--line);background:#fff;border-radius:7px;
+    padding:7px 0;cursor:pointer;font-weight:600;font-size:.85rem;transition:.12s}
+  .crit .scale button.sel{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .crit .desc{font-size:.78rem;color:var(--muted);margin-top:6px;min-height:30px}
+  .bandbox{text-align:center;background:linear-gradient(135deg,#1550b3,#1f6feb);color:#fff;
+    border-radius:14px;padding:22px;margin-top:8px}
+  .bandbox .num{font-size:3rem;font-weight:800;line-height:1}
+  .bandbox .lbl{opacity:.9;font-size:.85rem;letter-spacing:1px;text-transform:uppercase}
+  .model{border-left:4px solid var(--brand);padding:8px 0 8px 14px;margin:10px 0}
+  .model .bn{font-weight:700;color:var(--brand-d);font-size:.85rem}
+  .word{display:inline-block;background:#eef4ff;border:1px solid #d4e2ff;color:var(--brand-d);
+    border-radius:8px;padding:5px 11px;margin:4px 4px 0 0;cursor:pointer;font-size:.9rem;transition:.12s}
+  .word:hover{background:var(--brand);color:#fff}
+  .word .ph{font-size:.74rem;color:var(--muted);margin-left:5px}
+  .word:hover .ph{color:#dbe8ff}
+  details{border:1px solid var(--line);border-radius:10px;padding:0 14px;margin:10px 0;background:#fafbfc}
+  details summary{cursor:pointer;font-weight:600;padding:12px 0;list-style:none}
+  details summary::-webkit-details-marker{display:none}
+  details summary::before{content:"▸ ";color:var(--brand)}
+  details[open] summary::before{content:"▾ "}
+  .vocab-topic{font-weight:700;color:var(--brand-d);margin:14px 0 4px}
+  select,input[type=text]{border:1px solid var(--line);border-radius:8px;padding:9px 10px;
+    font-size:.92rem;font-family:inherit}
+  .transcript{background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:12px;
+    font-size:.92rem;min-height:50px;margin-top:8px}
+  .filler{background:#ffe0e0;color:var(--red);border-radius:4px;padding:0 3px;font-weight:600}
+  .stat{display:inline-block;background:#eef4ff;border-radius:8px;padding:6px 12px;margin:4px 6px 0 0;
+    font-size:.85rem}
+  .stat b{color:var(--brand-d)}
+  .saved-item{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+  .saved-item .meta{font-size:.8rem;color:var(--muted);margin-bottom:4px}
+  .hide{display:none}
+  hr{border:none;border-top:1px solid var(--line);margin:18px 0}
+  .foot{text-align:center;color:var(--muted);font-size:.8rem;margin-top:24px}
+  .badge-live{display:inline-flex;align-items:center;gap:6px;color:var(--red);font-weight:700;font-size:.85rem}
+  .badge-live i{width:9px;height:9px;border-radius:50%;background:var(--red);animation:pulse 1s infinite;display:inline-block}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>🎙️ IELTS Academic Speaking Simulator</h1>
+  <p>LBEnglishCo · Denizli — full 3-part mock test, voice recording, self-scoring &amp; model answers</p>
+</header>
+
+<div class="wrap">
+  <div class="tabs">
+    <button data-tab="exam" class="active">Mock Test</button>
+    <button data-tab="score">Self-Score</button>
+    <button data-tab="models">Model Answers</button>
+    <button data-tab="vocab">Vocabulary</button>
+    <button data-tab="saved">My Recordings</button>
+  </div>
+
+  <!-- ============ EXAM ============ -->
+  <section id="tab-exam">
+    <div class="card" id="introCard">
+      <h2>Before you begin</h2>
+      <p class="lead">This simulates a real IELTS Academic Speaking test: <b>Part 1</b> (4–5 min interview),
+      <b>Part 2</b> (1 min prep + up to 2 min talk), <b>Part 3</b> (4–5 min discussion). Total ≈ 11–14 minutes.</p>
+      <div class="amber small"><b>Microphone:</b> when you press <b>Record</b> your browser will ask for mic
+      permission. Recordings stay on your device (saved in this browser only) — nothing is uploaded.
+      Works best in Chrome or Edge.</div>
+      <div class="row">
+        <button class="btn" id="startExam">▶ Start Full Mock Test</button>
+        <button class="btn ghost" id="startP2only">Practise Part 2 only</button>
+      </div>
+      <p class="small muted" id="micState" style="margin-top:10px"></p>
+    </div>
+
+    <div class="card hide" id="examCard">
+      <div class="row" style="justify-content:space-between">
+        <span class="pill part" id="partPill">PART 1</span>
+        <span class="badge-live hide" id="liveBadge"><i></i>RECORDING</span>
+        <span class="timer" id="bigTimer">00:00</span>
+      </div>
+      <div class="progress"><i id="examProgress"></i></div>
+
+      <!-- Examiner / question area -->
+      <div id="examinerArea" style="margin-top:14px">
+        <div class="examiner">
+          <div class="avatar">👤</div>
+          <div>
+            <div class="who">Examiner</div>
+            <div class="q" id="qText">…</div>
+          </div>
+        </div>
+        <p class="small muted" id="qMeta"></p>
+      </div>
+
+      <!-- Cue card (Part 2) -->
+      <div class="cue hide" id="cueCard">
+        <h3 id="cueTitle">Cue card</h3>
+        <p class="muted small" style="margin:0 0 8px">You should say:</p>
+        <ul id="cueBullets"></ul>
+        <p class="small" style="margin:10px 0 0"><b>Prep notes</b> (you have 1 minute to plan):</p>
+        <textarea class="notes" id="cueNotes" placeholder="Jot keywords here…"></textarea>
+      </div>
+
+      <!-- Recording controls -->
+      <div style="margin-top:14px">
+        <canvas class="wave" id="wave"></canvas>
+        <div class="row">
+          <button class="btn rec" id="recBtn">● Record answer</button>
+          <button class="btn stop hide" id="stopBtn">■ Stop</button>
+          <button class="btn ghost" id="nextBtn">Next ▸</button>
+          <button class="btn ghost" id="replayQ" title="Hear the question">🔊 Hear question</button>
+        </div>
+        <audio id="playback" controls class="hide"></audio>
+        <div class="row small" style="margin-top:8px">
+          <button class="btn ghost small hide" id="saveRecBtn">💾 Save this recording</button>
+          <span class="small muted" id="recHint"></span>
+        </div>
+      </div>
+
+      <!-- Live transcript / fluency (Part feedback) -->
+      <details id="liveAnalysis">
+        <summary>Live transcript &amp; fluency analysis (Chrome/Edge)</summary>
+        <div class="transcript" id="transcriptBox"><span class="muted">Start recording to capture a live transcript…</span></div>
+        <div id="fluencyStats" style="margin-top:8px"></div>
+        <p class="small muted">Filler words are highlighted in red. Aim to reduce <i>um, uh, like, you know</i>
+        — controlled pauses are better than fillers in IELTS.</p>
+      </details>
+
+      <hr>
+      <div class="row" style="justify-content:space-between">
+        <button class="btn ghost small" id="endExam">End test</button>
+        <button class="btn small" id="toScore">Finish ▸ Go to Self-Score</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SELF SCORE ============ -->
+  <section id="tab-score" class="hide">
+    <div class="card">
+      <h2>Self-Assessment — the four official criteria</h2>
+      <p class="lead">Rate yourself honestly on each band (1–9). The estimate is the average, rounded to the
+      nearest half band — exactly how IELTS combines the four criteria.</p>
+
+      <div class="grid">
+        <div class="crit" data-crit="fc">
+          <label>Fluency &amp; Coherence</label>
+          <div class="scale"></div>
+          <div class="desc"></div>
+        </div>
+        <div class="crit" data-crit="lr">
+          <label>Lexical Resource</label>
+          <div class="scale"></div>
+          <div class="desc"></div>
+        </div>
+        <div class="crit" data-crit="gra">
+          <label>Grammatical Range &amp; Accuracy</label>
+          <div class="scale"></div>
+          <div class="desc"></div>
+        </div>
+        <div class="crit" data-crit="pr">
+          <label>Pronunciation</label>
+          <div class="scale"></div>
+          <div class="desc"></div>
+        </div>
+      </div>
+
+      <div class="bandbox" id="bandBox">
+        <div class="lbl">Estimated Overall Band</div>
+        <div class="num" id="bandNum">—</div>
+        <div class="small" id="bandWord"></div>
+      </div>
+
+      <div class="amber small"><b>Turkish L1 check:</b> review your recording for the predictable patterns —
+      dropped articles (<i>a/the</i>), present-simple overuse instead of perfect/continuous, and final
+      consonant-cluster reduction (<i>"text" → "tex"</i>). Fixing these three lifts most Denizli learners
+      from ~5.5 toward 6.5.</div>
+      <button class="btn ghost small" id="resetScore">Reset scores</button>
+    </div>
+  </section>
+
+  <!-- ============ MODELS ============ -->
+  <section id="tab-models" class="hide">
+    <div class="card">
+      <h2>Model Answers — Band 6 → 9</h2>
+      <p class="lead">Compare how the <i>same question</i> climbs the band scale. Notice what changes:
+      idea development, linking, vocabulary precision, and grammar range — not length alone.</p>
+      <div class="row" style="margin-bottom:6px">
+        <label class="small muted" for="modelPart">Part:</label>
+        <select id="modelPart">
+          <option value="1">Part 1</option>
+          <option value="2">Part 2</option>
+          <option value="3">Part 3</option>
+        </select>
+        <select id="modelQ"></select>
+      </div>
+      <div id="modelArea"></div>
+    </div>
+  </section>
+
+  <!-- ============ VOCAB ============ -->
+  <section id="tab-vocab" class="hide">
+    <div class="card">
+      <h2>Topic Vocabulary Bank</h2>
+      <p class="lead">Band 6 → 7+ upgrades for common Speaking topics. <b>Click any word to hear it</b>
+      (Web Speech API). Use 2–3 per answer — over-using "big" words sounds memorised.</p>
+      <div class="row" style="margin-bottom:4px">
+        <label class="small muted" for="vocabTopic">Topic:</label>
+        <select id="vocabTopic"></select>
+      </div>
+      <div id="vocabArea"></div>
+      <div class="amber small"><b>Pronunciation tip for Turkish speakers:</b> stress the right syllable —
+      English is stress-timed, Turkish is syllable-timed. Click words and copy the rhythm, not just the sounds.</div>
+    </div>
+  </section>
+
+  <!-- ============ SAVED ============ -->
+  <section id="tab-saved" class="hide">
+    <div class="card">
+      <h2>My Saved Recordings</h2>
+      <p class="lead">Stored in this browser only (localStorage). Replay to self-assess over time.</p>
+      <div id="savedList"><p class="muted small">No saved recordings yet.</p></div>
+      <button class="btn ghost small hide" id="clearSaved">Clear all recordings</button>
+    </div>
+  </section>
+
+  <p class="foot">Built for LBEnglishCo · IELTS Academic Speaking · Self-contained — works offline once loaded.</p>
+</div>
+
+<script>
+/* ============================================================
+   CONTENT BANK
+   ============================================================ */
+// 5 topics · 42 questions total (Part 1: 22, Part 2: 5 cue cards, Part 3: 15)
+const PART1 = [
+  {topic:"Education & Learning", qs:[
+    "Are you working or studying at the moment?",
+    "What subject did you enjoy most at school?",
+    "Do you think you will study something new in the future?",
+    "Is it better to study alone or with other people?",
+    "How have your study habits changed over the years?"]},
+  {topic:"Technology", qs:[
+    "How often do you use the internet?",
+    "What piece of technology could you not live without?",
+    "Do you prefer texting people or calling them?",
+    "Has technology changed the way you study or work?",
+    "Do you think you spend too much time looking at screens?"]},
+  {topic:"Travel & Places", qs:[
+    "Do you enjoy travelling?",
+    "What kind of places do you like to visit?",
+    "Do you prefer travelling alone or with other people?",
+    "Is there a place you would love to visit in the future?"]},
+  {topic:"Dreams, Goals & Ambitions", qs:[
+    "Do you usually remember your dreams when you wake up?",
+    "When you were a child, what did you want to become?",
+    "Do you like to set goals for yourself?",
+    "Is there a dream you would still love to achieve?"]},
+  {topic:"Regrets & Life Decisions", qs:[
+    "Do you find it easy to make decisions?",
+    "Do you usually ask other people for advice before deciding?",
+    "Have you ever changed your mind about an important decision?",
+    "Do you prefer to plan ahead or to be spontaneous?"]}
+];
+
+const PART2 = [
+  {title:"Describe a skill you would like to learn",
+   bullets:["what the skill is","why you want to learn it","how you would learn it","and explain how it would be useful to you"],
+   topic:"Education & Learning"},
+  {title:"Describe a piece of technology you find useful",
+   bullets:["what it is","how you use it","how often you use it","and explain why it is so useful to you"],
+   topic:"Technology"},
+  {title:"Describe a place you enjoy visiting",
+   bullets:["where it is","how often you go there","what you do there","and explain why you enjoy it"],
+   topic:"Travel & Places"},
+  {title:"Describe a dream or ambition you have for the future",
+   bullets:["what the dream is","when you first had it","what you are doing to achieve it","and explain why it matters so much to you"],
+   topic:"Dreams, Goals & Ambitions"},
+  {title:"Describe a decision you now regret making",
+   bullets:["what the decision was","when you made it","why you made it at the time","and explain why you regret it now"],
+   topic:"Regrets & Life Decisions"}
+];
+
+// Part 3 discussion sets keyed loosely to Part 2 topics
+const PART3 = {
+  "Education & Learning":[
+    "Why do you think some skills are harder to learn as an adult?",
+    "Should schools focus more on practical skills or academic knowledge?",
+    "How has the internet changed the way people learn new things?"],
+  "Technology":[
+    "How has technology changed the way families communicate?",
+    "Do the advantages of new technology outweigh the disadvantages?",
+    "Should governments control how companies use personal data?"],
+  "Travel & Places":[
+    "Why do people enjoy visiting new places?",
+    "Does tourism always benefit local communities?",
+    "How might the way people travel change in the future?"],
+  "Dreams, Goals & Ambitions":[
+    "Why do some people find it so hard to achieve their goals?",
+    "Do young people today have different ambitions from past generations?",
+    "Should parents set goals for their children, or let them choose their own?"],
+  "Regrets & Life Decisions":[
+    "Why do people often regret the decisions they made when they were young?",
+    "Do you think it is healthy to dwell on past regrets?",
+    "How can people learn from the mistakes they have made?"]
+};
+
+// Band descriptors for the four criteria (concise, examiner-grounded)
+const BAND_DESC = {
+  fc:{6:"Willing to speak at length, though coherence may slip; some repetition/hesitation.",
+      7:"Speaks at length without noticeable effort; flexible use of connectives & discourse markers.",
+      8:"Fluent with rare repetition; coherent, well-developed topic extension.",
+      9:"Effortless flow; fully coherent; hesitation only to think, not to find words."},
+  lr:{6:"Enough vocabulary to discuss topics; meaning clear despite some inappropriacy.",
+      7:"Flexible vocabulary; some less-common items & collocations; effective paraphrase.",
+      8:"Wide, precise vocabulary; skilful idiomatic & less-common usage.",
+      9:"Full, natural, precise lexical control across all topics."},
+  gra:{6:"Mix of simple & complex forms; errors persist but rarely block meaning.",
+       7:"Range of complex structures; frequent error-free sentences.",
+       8:"Wide range, flexible; mostly error-free with only occasional slips.",
+       9:"Full range, natural & accurate; errors extremely rare."},
+  pr:{6:"Generally intelligible; control of features is mixed; L1 accent affects clarity at times.",
+      7:"Clear individual sounds & stress; sustained intelligibility; some lapses.",
+      8:"Wide range of pronunciation features; easy to understand throughout.",
+      9:"Precise, subtle use of pronunciation features; effortless to understand."}
+};
+
+// Model answers Band 6/7/8/9 for representative questions
+const MODELS = {
+  1:[
+   {q:"Are you working or studying at the moment?",
+    a:{6:"I am studying at the moment. I am a university student and I study business. I am in my second year now.",
+       7:"I'm studying at the moment — I'm in the second year of a business degree, which keeps me busy but I'm enjoying it so far.",
+       8:"I'm a student at present. I'm reading for a business degree and I'm now in my second year, which is when things start to get genuinely interesting.",
+       9:"I'm studying at the moment, actually — I'm midway through a business degree, now in my second year. It's proving to be the most engaging year so far, since we've finally moved on from pure theory to more hands-on projects."}},
+   {q:"What subject did you enjoy most at school?",
+    a:{6:"I enjoyed English the most at school. I liked the lessons and the teacher was very kind. It was useful for me.",
+       7:"The subject I enjoyed most was definitely English. I always looked forward to those lessons, partly because of a brilliant teacher who made everything come alive.",
+       8:"Without a doubt, English was my favourite. I found it far more engaging than the more rigid subjects, and a wonderful teacher really nurtured my interest in the language.",
+       9:"English was easily my favourite, and it's stayed with me ever since. What made the difference was an inspiring teacher who had a knack for making even grammar feel exciting — she's a large part of why I ended up so passionate about languages."}},
+   {q:"Do you think you will study something new in the future?",
+    a:{6:"Yes, I think I will study something new. Maybe I will learn a new language or take an online course. I like learning new things.",
+       7:"I'd like to, yes. I'm quite keen to pick up a new language at some point, and online courses have made that kind of learning so much more accessible.",
+       8:"Almost certainly. I'm a firm believer in lifelong learning, so I imagine I'll always be taking up something new — probably another language, or perhaps a practical skill like coding.",
+       9:"I've no doubt I will — I can't really imagine standing still. I'm drawn to the idea of mastering another language, but I'm equally tempted by something more technical like coding; either way, keeping the mind active strikes me as essential."}},
+   {q:"Is it better to study alone or with other people?",
+    a:{6:"I think it is better to study alone. When I am alone I can concentrate more. But sometimes studying with friends is also good.",
+       7:"It depends, really, but I tend to prefer studying alone because I can concentrate better. That said, working with others is useful when you want to test your understanding.",
+       8:"I'd say it depends on the task. For absorbing new material I much prefer studying alone, as I can focus without distraction; but for revising tricky problems, bouncing ideas off others is invaluable.",
+       9:"Honestly, the two serve different purposes. Solitary study suits me best when I need to really get to grips with something demanding, whereas group study comes into its own when you want to fill gaps in your understanding — explaining a concept to someone else is often the surest test of whether you've grasped it yourself."}},
+   {q:"How have your study habits changed over the years?",
+    a:{6:"My study habits have changed a lot. Before, I studied at the last minute, but now I plan more and study every day.",
+       7:"They've changed quite a bit. I used to leave everything until the last minute, whereas now I've learned to study a little each day, which is far less stressful.",
+       8:"They've changed considerably, thankfully. As a teenager I was a chronic procrastinator who crammed before exams, but over time I've developed a much steadier routine, spacing my study out rather than relying on last-minute panic.",
+       9:"They've transformed, really. I was once the archetypal crammer, leaving everything to the eleventh hour, but experience has taught me that spreading the work out and revisiting material regularly is infinitely more effective — so these days I'm far more disciplined and, as a result, far less frazzled come exam season."}},
+   {q:"How often do you use the internet?",
+    a:{6:"I use the internet every day. I use it for studying, watching videos and talking to my friends. I cannot imagine my life without it.",
+       7:"Pretty much constantly, to be honest. I'm online every day — for my studies, for staying in touch with people, and of course for entertainment.",
+       8:"Constantly, I'm afraid. It's woven into almost everything I do, from researching for my course to keeping up with friends and unwinding in the evening.",
+       9:"Almost incessantly, if I'm honest — it's become so embedded in daily life that I barely notice it. Whether I'm researching for my degree, keeping in touch with people or simply winding down, the internet is usually involved in some shape or form."}},
+   {q:"What piece of technology could you not live without?",
+    a:{6:"I could not live without my phone. I use it for everything, like messages, maps and photos. It is very important for me.",
+       7:"Definitely my smartphone. It's become a kind of all-in-one tool — I use it for messaging, navigation, photos and so much more.",
+       8:"It would have to be my smartphone. It's effectively replaced half a dozen devices; everything from my camera to my maps and my diary lives on it now.",
+       9:"Without question, my smartphone — though I'm slightly reluctant to admit how dependent I've become on it. It's quietly absorbed the role of my camera, my map, my notebook and my wallet, to the point where being without it feels genuinely disorienting."}},
+   {q:"Do you prefer texting people or calling them?",
+    a:{6:"I prefer texting people. It is faster and I can answer when I have time. But I call my family sometimes.",
+       7:"I generally prefer texting, mainly because it's so convenient — I can reply whenever it suits me. Although for family I do still pick up the phone.",
+       8:"On the whole I lean towards texting; it's less intrusive and lets me respond in my own time. That said, for anything emotional or complicated, a proper phone call is hard to beat.",
+       9:"It rather depends on the situation, but my default is texting — it's wonderfully unobtrusive and lets both people reply at their own pace. For anything that carries real emotional weight, though, I'd always opt for a call; so much of what we communicate is lost in plain text."}},
+   {q:"Has technology changed the way you study or work?",
+    a:{6:"Yes, technology has changed my studying a lot. Now I can find information online quickly and watch videos to learn. It is easier than before.",
+       7:"Enormously, yes. I can find almost any information in seconds now, and online lectures mean I can learn at my own pace, which has made a huge difference.",
+       8:"Profoundly, I'd say. The sheer accessibility of information has transformed how I research, and tools like online lectures and shared documents have made studying far more flexible than it was even a few years ago.",
+       9:"Beyond recognition, really. Where I'd once have spent hours in a library, I can now access primary sources in moments, collaborate on documents in real time and revisit recorded lectures whenever I like. If anything, the challenge nowadays is filtering the sheer volume of information rather than finding it."}},
+   {q:"Do you think you spend too much time looking at screens?",
+    a:{6:"Yes, I think I spend too much time on screens. I use my phone a lot for social media and videos. Sometimes I want to use it less but it is difficult.",
+       7:"Probably, yes. I spend a fair amount of time on my phone, mostly on social media, and I'm trying to cut down because I know it isn't always a good use of my time.",
+       8:"I'd have to admit I do. Between work and social media, I'm glued to a screen for most of the day, and I've started setting myself limits because I noticed it was eating into time I could spend doing other things.",
+       9:"If I'm honest, I probably do. Like a lot of people, I find myself reaching for my phone almost on autopilot, and while a great deal of it is genuinely useful, I've become more conscious of how easily those minutes add up — so I've started carving out screen-free periods to keep it in check."}},
+   {q:"Do you enjoy travelling?",
+    a:{6:"Yes, I enjoy travelling very much. I like to see new places and try new food. It is fun and I can relax with my family.",
+       7:"I really do, yes. There's nothing quite like exploring somewhere unfamiliar — I love discovering new food, meeting different people and getting a break from my usual routine.",
+       8:"I'm passionate about it, actually. For me, travel is the best way to broaden my horizons; immersing myself in another culture, even for just a few days, always leaves me with a fresh perspective.",
+       9:"I'm an avid traveller, yes. Beyond the obvious pleasure of seeing somewhere new, what really draws me is the way travel pulls you out of your comfort zone — immersing yourself in an unfamiliar culture has a way of broadening your horizons that little else can match."}},
+   {q:"What kind of places do you like to visit?",
+    a:{6:"I like to visit historical places and also nature. I enjoy seeing old buildings and walking in the mountains. They are very beautiful.",
+       7:"I'm drawn to two kinds of places, really — historical towns with plenty of character, and quiet natural spots like mountains or the coast where I can unwind.",
+       8:"I have fairly eclectic tastes, but I'm particularly fond of historic places steeped in character, as well as unspoilt natural settings — there's something restorative about getting away from the crowds.",
+       9:"I tend to gravitate towards two extremes: places rich in history, where you can almost feel the past, and remote natural landscapes well off the beaten track. Both offer a kind of escape from the everyday, which is precisely what I look for when I travel."}},
+   {q:"Do you prefer travelling alone or with other people?",
+    a:{6:"I prefer travelling with other people. It is more fun and safe. We can share the experience together.",
+       7:"I usually prefer travelling with others — sharing the experience makes it more enjoyable, and it's reassuring to have company in an unfamiliar place.",
+       8:"I generally favour travelling with close friends or family, because sharing those moments makes them more memorable. Occasionally, though, I appreciate the freedom of going solo.",
+       9:"On balance I prefer travelling with people I'm close to — shared experiences tend to stay with you far longer than solitary ones. That said, there's a certain liberating quality to travelling alone; you're answerable to no one and free to follow your own whims, so I wouldn't rule it out."}},
+   {q:"Is there a place you would love to visit in the future?",
+    a:{6:"Yes, I would love to visit Japan. I am interested in the culture and the food. I hope I can go there one day.",
+       7:"Definitely — Japan is top of my list. I'm fascinated by the blend of ancient tradition and cutting-edge technology, and the food, of course.",
+       8:"Japan, without hesitation. I'm captivated by the way it juxtaposes centuries-old tradition with the ultra-modern, and I'd love to experience that contrast first-hand — not to mention the cuisine.",
+       9:"Japan has long been at the very top of my list. What intrigues me is the seamless coexistence of the ancient and the futuristic — temples a stone's throw from neon-lit cityscapes. I'd love to immerse myself in that contrast properly, rather than just glimpsing it through a screen."}},
+   {q:"Do you usually remember your dreams when you wake up?",
+    a:{6:"Sometimes I remember my dreams, but usually I forget them quickly. If the dream is strange, I remember it more.",
+       7:"Only occasionally, to be honest. Most of the time they slip away within minutes of waking, unless the dream was particularly vivid or unusual.",
+       8:"Not as a rule, no. They tend to evaporate the moment I wake up, although every so often an especially striking dream will linger with me for most of the morning.",
+       9:"Rarely, I'm afraid — they usually dissolve the instant my alarm goes off. Just occasionally, though, a particularly vivid or bizarre dream will stay with me, and I'll find myself turning it over for hours, trying to work out where on earth it came from."}},
+   {q:"When you were a child, what did you want to become?",
+    a:{6:"When I was a child, I wanted to become a doctor. I thought it was a good job to help people. Now my idea is different.",
+       7:"As a child I was set on becoming a doctor — I loved the idea of helping people. My ambitions have shifted quite a lot since then, though.",
+       8:"Like a lot of children, I went through a phase of wanting to be a doctor, mainly because the idea of helping people appealed to me. Needless to say, my aspirations have evolved considerably since.",
+       9:"I was absolutely determined to become a doctor when I was small — I think the appeal was the sense of doing something genuinely worthwhile. My ambitions have taken a rather different turn since then, but that early instinct to do something meaningful has, in a way, never really left me."}},
+   {q:"Is there a dream you would still love to achieve?",
+    a:{6:"Yes, I have a dream. I want to travel to many countries and see the world. Maybe I will do it when I have money and time.",
+       7:"Definitely. One dream I've held onto is to travel widely — I'd love to spend a few months exploring different cultures rather than just taking short holidays.",
+       8:"I do, actually. A long-held dream of mine is to take an extended trip across several continents — not as a tourist ticking off sights, but really immersing myself in each culture and learning how other people live.",
+       9:"Absolutely — there's one I've nurtured for years. I'd love to take a sabbatical and travel slowly across the world, the kind of trip where you stay long enough to feel the rhythm of a place. It's less about the destinations themselves and more about the perspective that kind of journey gives you."}},
+   {q:"Do you like to set goals for yourself?",
+    a:{6:"Yes, I set goals. I make a list of things I want to do and try to finish them. It helps me to stay focused.",
+       7:"I do, yes. I tend to set myself a few clear goals each year, because having something concrete to aim for keeps me motivated and stops me drifting.",
+       8:"I'm quite a goal-oriented person, actually. I like to break bigger ambitions down into manageable milestones — that way progress feels tangible and I'm far less likely to lose momentum.",
+       9:"I'm a firm believer in goal-setting, yes. I find that clearly defined objectives give my efforts direction and purpose; without them I'd probably just react to whatever's in front of me rather than steadily working towards something that genuinely matters to me."}},
+   {q:"Do you find it easy to make decisions?",
+    a:{6:"Not really. I think a lot before I decide, especially for big decisions. For small things it is easier.",
+       7:"It depends on the decision, honestly. With small everyday choices I'm fairly quick, but for anything important I tend to deliberate quite a bit.",
+       8:"I'd say I'm reasonably decisive with day-to-day matters, but when the stakes are higher I have a tendency to overthink, weighing up every possible outcome before committing.",
+       9:"It really hinges on what's at stake. Trivial decisions I make almost instinctively, but with anything consequential I can be frustratingly indecisive — I have a habit of agonising over the alternatives, which I suspect stems from a fear of making the wrong call."}},
+   {q:"Do you usually ask other people for advice before deciding?",
+    a:{6:"Yes, I usually ask my family and friends for advice. Their opinion is important for me. But I make the final decision myself.",
+       7:"I do, yes — I like to hear what people I trust think before I decide, though ultimately the final call is mine.",
+       8:"I tend to, particularly for significant decisions. Talking it through with people I trust helps me see angles I might have missed, even if I ultimately make up my own mind.",
+       9:"I usually do, especially when the decision carries some weight. I find that articulating the dilemma out loud to someone I trust often clarifies my own thinking — though I'm careful to treat their input as guidance rather than a substitute for my own judgement."}},
+   {q:"Have you ever changed your mind about an important decision?",
+    a:{6:"Yes, I have. I wanted to study in another city, but then I changed my mind and stayed near my family. I think it was the right choice.",
+       7:"Yes, actually. I'd planned to move to another city to study, but in the end I changed my mind and stayed closer to home — and I'm glad I did.",
+       8:"I have, yes. I was all set to move away for university, but after a lot of reflection I changed course and stayed nearer my family, which turned out to be the wiser decision.",
+       9:"I have indeed — quite a significant one. I'd more or less committed to studying in another city, but the closer it got, the more I realised it wasn't right for me, so I reversed the decision and stayed closer to home. With hindsight, trusting that instinct was absolutely the right move."}},
+   {q:"Do you prefer to plan ahead or to be spontaneous?",
+    a:{6:"I prefer to plan ahead. I like to know what I will do and I feel more relaxed. But sometimes spontaneous things are fun.",
+       7:"I'm definitely more of a planner. Having things organised in advance puts my mind at ease, although I do try to leave a little room for spontaneity.",
+       8:"By nature I'm a planner — I feel far more at ease when things are mapped out in advance. That said, I've learned that some of the best experiences come from being spontaneous, so I try to strike a balance.",
+       9:"I'm a planner at heart; there's a certain peace of mind that comes from having things mapped out. But I've come to appreciate that rigidity has its costs — some of my most memorable experiences have been entirely unplanned — so these days I consciously leave a bit of slack for spontaneity rather than scheduling every last detail."}}
+  ],
+  2:[
+   {q:"Describe a skill you would like to learn",
+    a:{6:"I want to learn how to cook better. I like food but I can only make simple dishes. I would learn from videos on the internet and ask my mother. It is useful because I can save money and eat healthy.",
+       7:"A skill I'd really like to pick up is cooking properly. At the moment I can only manage the basics, so I'd like to learn how to prepare more varied meals. I'd probably follow online tutorials and practise at weekends. It would be useful because cooking well is healthier and cheaper than eating out.",
+       8:"One skill I've long wanted to develop is cooking — proper, confident cooking rather than just throwing something together. I'd teach myself through a mix of online courses and trial and error, ideally with a more experienced friend guiding me. It would be invaluable, not only because home cooking is healthier and more economical, but because it's a genuinely creative outlet.",
+       9:"A skill I'd love to master is cooking — and I mean really master it, not just follow recipes mechanically. I'd approach it methodically: structured online courses to build the fundamentals, then relentless practice to develop intuition. The pay-off would be considerable — it's healthier, far cheaper than eating out, and frankly there's something deeply satisfying about creating something from scratch that brings people together."}},
+   {q:"Describe a dream or ambition you have for the future",
+    a:{6:"I want to talk about my dream to start my own business. I had this dream two years ago when I worked in a shop. I want to open a small café in my city. Now I am saving money and I read about business. It is important for me because I want to be my own boss and not work for other people.",
+       7:"The ambition I'd like to describe is opening my own café. The idea first came to me a couple of years ago while I was working part-time in a shop and realised I wanted to build something of my own. To get there, I've been putting money aside and reading up on how to run a small business. It matters to me because I'd finally be my own boss, and I love the thought of creating a welcoming space where people relax.",
+       8:"I'd like to tell you about a dream that's been taking shape for a while now — opening my own café. It first occurred to me a couple of years back when I was stuck in a fairly unfulfilling part-time job and started craving something I could genuinely call mine. Since then I've been steadily saving and teaching myself the basics of running a business. What makes it so meaningful is the independence it would give me, and the idea of creating a warm little space where the community can come together.",
+       9:"The ambition I'd love to share is one I've been quietly nurturing for a couple of years — to open my own café. It crystallised when I was working a rather monotonous job and realised I wanted to pour my energy into something of my own rather than someone else's. I've been laying the groundwork ever since: building up savings and immersing myself in everything from costing to customer experience. It resonates with me so deeply because it marries independence with a genuine sense of purpose — the prospect of crafting a space where people feel at home is enormously appealing."}},
+   {q:"Describe a decision you now regret making",
+    a:{6:"I want to talk about a decision I regret. When I finished school, I chose a university subject because my friends chose it, not because I liked it. I made this decision because I did not want to be alone. Now I regret it because I am not interested in this subject and I think I chose the wrong path.",
+       7:"The decision I regret is the degree I picked after school. I chose it mainly because my friends were doing the same course, rather than thinking carefully about what I actually enjoyed. At the time I just didn't want to be on my own. Looking back, I regret it because my heart was never really in the subject, and I sometimes wonder how things might have turned out if I'd been braver.",
+       8:"A decision I genuinely regret is the university course I chose straight after school. To be honest, I went along with what my friends were doing instead of pausing to consider my own interests — I suppose I was reluctant to strike out on my own at that age. With hindsight, I regret it because I never felt any real passion for the subject, and that lack of engagement held me back. It taught me an important lesson about following the crowd.",
+       9:"The decision that still nags at me is the degree I rushed into after leaving school. Rather than reflecting honestly on what genuinely engaged me, I simply followed my friends onto the same course — partly out of insecurity, partly because the path of least resistance was so tempting at that age. In retrospect I regret it because my heart was never truly in it, and that absence of passion quietly undermined my motivation for years. If there's a silver lining, it's that the experience taught me to trust my own judgement rather than defer to the crowd."}}
+  ],
+  3:[
+   {q:"Should schools focus more on practical skills or academic knowledge?",
+    a:{6:"I think schools need both. Academic knowledge is important for university but practical skills help in real life, like managing money. So maybe a balance is good.",
+       7:"I'd argue for a balance, but with a stronger emphasis on practical skills than we currently see. Academic knowledge clearly matters, yet many students leave school unable to manage finances or communicate effectively, which are arguably just as important.",
+       8:"That's a real tension. While academic rigour underpins critical thinking and opens doors to higher education, I'd contend that schools have historically neglected practical competencies — financial literacy, communication, problem-solving — that determine how well people actually function as adults. The ideal, surely, is to weave the two together rather than treat them as rivals.",
+       9:"It's something of a false dichotomy, in my view. Academic knowledge cultivates the analytical habits of mind that society depends on, but those abstractions only become meaningful when students can apply them — to budget, to collaborate, to navigate uncertainty. So rather than privileging one over the other, I'd argue the most effective systems embed practical application within academic content, so the two reinforce each other rather than compete."}},
+   {q:"Why do some people find it so hard to achieve their goals?",
+    a:{6:"I think some people fail because they are not patient. They want fast results and when it is difficult they stop. Also some people do not plan well, so they do not know what to do.",
+       7:"There are a few reasons. Often people set goals that are too vague or unrealistic, so they get discouraged when progress is slow. On top of that, many lack the self-discipline to keep going once the initial excitement wears off.",
+       8:"A number of factors come into play. For one, people frequently set goals that are either poorly defined or wildly ambitious, which makes early setbacks feel like failure. Just as importantly, sustaining motivation over the long haul demands real self-discipline — and when life gets in the way, good intentions tend to fall by the wayside.",
+       9:"It usually comes down to a combination of things. People often set goals that are either too nebulous to act on or so ambitious that the first obstacle feels insurmountable. But the deeper issue, I'd argue, is the gap between motivation and discipline: enthusiasm is easy to summon, yet it's the unglamorous, day-to-day persistence that actually delivers results — and that's precisely what most of us struggle to maintain once the novelty fades."}},
+   {q:"Do you think it is healthy to dwell on past regrets?",
+    a:{6:"No, I think it is not healthy. If you think too much about the past, you feel sad and you cannot enjoy the present. It is better to learn and move on.",
+       7:"Not really — at least not excessively. A little reflection is useful because we learn from our mistakes, but constantly replaying past regrets just breeds anxiety and stops people moving forward with their lives.",
+       8:"I'd say there's a clear line between healthy reflection and unhealthy rumination. Looking back honestly enough to draw lessons is valuable, but fixating on what we can no longer change tends to corrode self-confidence and keeps us anchored to the past rather than focused on what we can still influence.",
+       9:"There's an important distinction to draw here. Brief, purposeful reflection is genuinely constructive — it's how we extract wisdom from our missteps. Dwelling, however, is another matter entirely: ruminating endlessly on choices we can't undo tends to be corrosive, fuelling regret and self-reproach while doing nothing to improve our circumstances. The healthier instinct, surely, is to acknowledge the lesson, make peace with the decision, and redirect that energy towards what lies ahead."}}
+  ]
+};
+
+// Vocabulary banks
+const VOCAB = {
+  "Education & Learning":[
+    {w:"curriculum",ph:"/kəˈrɪk.jə.ləm/",ex:"The school revised its curriculum to include coding."},
+    {w:"assessment",ph:"/əˈses.mənt/",ex:"Continuous assessment is fairer than a single final exam."},
+    {w:"literacy",ph:"/ˈlɪt.ər.ə.si/",ex:"Digital literacy is now an essential life skill."},
+    {w:"vocational",ph:"/voʊˈkeɪ.ʃən.əl/",ex:"Vocational training prepares students for specific trades."},
+    {w:"rote learning",ph:"/roʊt/",ex:"Rote learning helps memorisation but not understanding."},
+    {w:"well-rounded",ph:"/ˌwel ˈraʊn.dɪd/",ex:"A well-rounded education develops the whole person."}],
+  "Technology":[
+    {w:"innovation",ph:"/ˌɪn.əˈveɪ.ʃən/",ex:"Constant innovation drives the smartphone industry."},
+    {w:"reliant on",ph:"/rɪˈlaɪ.ənt/",ex:"We've become overly reliant on navigation apps."},
+    {w:"cutting-edge",ph:"/ˌkʌt.ɪŋ ˈedʒ/",ex:"The lab uses cutting-edge equipment."},
+    {w:"automation",ph:"/ˌɔː.təˈmeɪ.ʃən/",ex:"Automation has transformed manufacturing."},
+    {w:"user-friendly",ph:"/ˌjuː.zəˈfrend.li/",ex:"The app is intuitive and user-friendly."},
+    {w:"digital divide",ph:"/ˈdɪdʒ.ɪ.təl dɪˈvaɪd/",ex:"The digital divide leaves rural areas behind."}],
+  "Travel & Places":[
+    {w:"breathtaking",ph:"/ˈbreθˌteɪ.kɪŋ/",ex:"The view from the summit was breathtaking."},
+    {w:"off the beaten track",ph:"/ˈbiː.tən træk/",ex:"We prefer places off the beaten track."},
+    {w:"get away from it all",ph:"/ɡet əˈweɪ/",ex:"A quiet beach is perfect to get away from it all."},
+    {w:"tourist trap",ph:"/ˈtʊə.rɪst træp/",ex:"The old square has become a tourist trap."},
+    {w:"immerse yourself",ph:"/ɪˈmɜːs/",ex:"Travel lets you immerse yourself in another culture."},
+    {w:"picturesque",ph:"/ˌpɪk.tʃərˈesk/",ex:"They stayed in a picturesque mountain village."}],
+  "Dreams, Goals & Ambitions":[
+    {w:"aspiration",ph:"/ˌæs.pɪˈreɪ.ʃən/",ex:"Her lifelong aspiration was to become a surgeon."},
+    {w:"set my heart on",ph:"/set maɪ hɑːt ɒn/",ex:"I've set my heart on studying abroad."},
+    {w:"achievable",ph:"/əˈtʃiː.və.bəl/",ex:"Break a big dream into small, achievable steps."},
+    {w:"milestone",ph:"/ˈmaɪl.stoʊn/",ex:"Passing the exam was a major milestone for me."},
+    {w:"long-held ambition",ph:"/ˌlɒŋ held æmˈbɪʃ.ən/",ex:"Opening a café is a long-held ambition of mine."},
+    {w:"pursue a dream",ph:"/pəˈsjuː/",ex:"She left her job to pursue a dream of writing."},
+    {w:"determination",ph:"/dɪˌtɜː.mɪˈneɪ.ʃən/",ex:"It took real determination to finish the course."},
+    {w:"against the odds",ph:"/əˈɡenst ði ɒdz/",ex:"He succeeded against the odds."}],
+  "Regrets & Life Decisions":[
+    {w:"in hindsight",ph:"/ɪn ˈhaɪnd.saɪt/",ex:"In hindsight, I should have spoken up sooner."},
+    {w:"with the benefit of hindsight",ph:"/ˈben.ɪ.fɪt/",ex:"With the benefit of hindsight, the choice was wrong."},
+    {w:"look back on",ph:"/lʊk ˈbæk ɒn/",ex:"I look back on that decision with some regret."},
+    {w:"missed opportunity",ph:"/mɪst ˌɒp.əˈtjuː.nɪ.ti/",ex:"Turning down the job was a missed opportunity."},
+    {w:"learn from mistakes",ph:"/lɜːn frɒm mɪˈsteɪks/",ex:"It's important to learn from your mistakes."},
+    {w:"have second thoughts",ph:"/ˈsek.ənd θɔːts/",ex:"I had second thoughts about moving away."},
+    {w:"kick myself",ph:"/kɪk maɪˈself/",ex:"I could kick myself for not saving the file."},
+    {w:"come to terms with",ph:"/kʌm tə ˈtɜːmz/",ex:"I've come to terms with the choice I made."}]
+};
+
+/* ============================================================
+   TAB NAVIGATION
+   ============================================================ */
+document.querySelectorAll('.tabs button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelectorAll('section').forEach(s=>s.classList.add('hide'));
+    document.getElementById('tab-'+b.dataset.tab).classList.remove('hide');
+    if(b.dataset.tab==='saved') renderSaved();
+  });
+});
+function goTab(name){document.querySelector('.tabs button[data-tab="'+name+'"]').click();}
+
+/* ============================================================
+   SPEECH SYNTHESIS (pronunciation + examiner voice)
+   ============================================================ */
+function speak(text,rate){
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-GB'; u.rate=rate||0.95;
+  const v=speechSynthesis.getVoices().find(x=>/en-GB/i.test(x.lang))||
+          speechSynthesis.getVoices().find(x=>/en/i.test(x.lang));
+  if(v)u.voice=v;
+  speechSynthesis.speak(u);
+}
+if('speechSynthesis' in window){speechSynthesis.onvoiceschanged=()=>{};}
+
+/* ============================================================
+   EXAM ENGINE
+   ============================================================ */
+let examFlow=[], flowIdx=0, currentP3Topic=null;
+let mediaRecorder=null, chunks=[], stream=null, audioCtx=null, analyser=null, rafId=null;
+let recognition=null, transcriptFinal="", lastBlobURL=null, lastBlob=null;
+let timerId=null;
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+function buildFlow(p2only){
+  examFlow=[];
+  if(!p2only){
+    // Part 1: name + ~2 topic sets (4-5 questions)
+    examFlow.push({part:1,q:"Can you tell me your full name, please?",meta:"Part 1 · Introduction"});
+    const t1=pick(PART1), t2=pick(PART1.filter(t=>t!==t1));
+    t1.qs.slice(1,3).forEach(q=>examFlow.push({part:1,q,meta:"Part 1 · "+t1.topic}));
+    t2.qs.slice(0,2).forEach(q=>examFlow.push({part:1,q,meta:"Part 1 · "+t2.topic}));
+  }
+  // Part 2 cue card
+  const cue=pick(PART2);
+  currentP3Topic=cue.topic;
+  examFlow.push({part:2,cue,meta:"Part 2 · Long turn"});
+  if(!p2only){
+    // Part 3 follow-ups based on cue topic
+    (PART3[cue.topic]||[]).forEach(q=>examFlow.push({part:3,q,meta:"Part 3 · Discussion"}));
+  }
+  flowIdx=0;
+}
+
+function startExam(p2only){
+  buildFlow(p2only);
+  document.getElementById('introCard').classList.add('hide');
+  document.getElementById('examCard').classList.remove('hide');
+  renderStep();
+}
+
+function fmt(s){const m=Math.floor(s/60),x=s%60;return String(m).padStart(2,'0')+":"+String(x).padStart(2,'0');}
+
+function clearTimer(){if(timerId){clearInterval(timerId);timerId=null;}
+  document.getElementById('bigTimer').classList.remove('warnflash');}
+
+function renderStep(){
+  clearTimer(); stopWave(); resetRecUI();
+  const step=examFlow[flowIdx];
+  document.getElementById('partPill').textContent="PART "+step.part;
+  document.getElementById('examProgress').style.width=((flowIdx)/(examFlow.length)*100)+"%";
+  const cueEl=document.getElementById('cueCard');
+  const exEl=document.getElementById('examinerArea');
+
+  if(step.part===2){
+    exEl.classList.add('hide'); cueEl.classList.remove('hide');
+    document.getElementById('cueTitle').textContent=step.cue.title;
+    const ul=document.getElementById('cueBullets'); ul.innerHTML="";
+    step.cue.bullets.forEach(b=>{const li=document.createElement('li');li.textContent=b;ul.appendChild(li);});
+    document.getElementById('cueNotes').value="";
+    document.getElementById('qMeta').textContent="";
+    // 1-minute prep timer then auto-prompt to record (2-min talk)
+    startPrepThenTalk();
+    document.getElementById('recHint').textContent="Plan for 1 minute, then talk for up to 2 minutes.";
+  }else{
+    cueEl.classList.add('hide'); exEl.classList.remove('hide');
+    document.getElementById('qText').textContent=step.q;
+    document.getElementById('qMeta').textContent=step.meta;
+    document.getElementById('bigTimer').textContent="00:00";
+    speak(step.q);
+    document.getElementById('recHint').textContent=step.part===1?
+      "Give an extended answer — Answer, Reason, Example, Add (AREA).":
+      "Develop your opinion with reasons and examples.";
+  }
+}
+
+let prepTimeLeft=0, talkTimeLeft=0, phase=null;
+function startPrepThenTalk(){
+  phase="prep"; prepTimeLeft=60;
+  const t=document.getElementById('bigTimer');
+  t.textContent="01:00 prep";
+  document.getElementById('partPill').textContent="PART 2 · PREP";
+  timerId=setInterval(()=>{
+    prepTimeLeft--;
+    t.textContent=fmt(prepTimeLeft)+" prep";
+    if(prepTimeLeft<=10)t.classList.add('warnflash');
+    if(prepTimeLeft<=0){
+      clearInterval(timerId);timerId=null;t.classList.remove('warnflash');
+      document.getElementById('partPill').textContent="PART 2 · TALK";
+      t.textContent="02:00 talk";
+      speak("Alright, remember you can speak for up to two minutes. Please begin.");
+      document.getElementById('recHint').textContent="Prep over — press Record and speak for up to 2 minutes.";
+    }
+  },1000);
+}
+
+function startTalkTimer(limit){
+  clearTimer();
+  let left=limit; const t=document.getElementById('bigTimer');
+  t.textContent=fmt(left);
+  timerId=setInterval(()=>{
+    left--;
+    const suffix = examFlow[flowIdx].part===2 ? " talk":"";
+    t.textContent=fmt(Math.max(left,0))+suffix;
+    if(left<=10)t.classList.add('warnflash');
+    if(left<=0){clearInterval(timerId);timerId=null; if(mediaRecorder&&mediaRecorder.state==='recording'){stopRecording();}}
+  },1000);
+}
+
+/* ---------- Recording ---------- */
+async function startRecording(){
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  }catch(e){
+    document.getElementById('recHint').textContent="⚠ Microphone blocked. Allow mic access in your browser and retry.";
+    return;
+  }
+  chunks=[]; transcriptFinal="";
+  mediaRecorder=new MediaRecorder(stream);
+  mediaRecorder.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
+  mediaRecorder.onstop=onRecStop;
+  mediaRecorder.start();
+  setupWave(stream);
+  startTranscription();
+  // UI
+  document.getElementById('recBtn').classList.add('hide');
+  document.getElementById('stopBtn').classList.remove('hide');
+  document.getElementById('liveBadge').classList.remove('hide');
+  document.getElementById('playback').classList.add('hide');
+  document.getElementById('saveRecBtn').classList.add('hide');
+  // timer
+  const step=examFlow[flowIdx];
+  if(step.part===2){clearTimer();startTalkTimer(120);}
+  else{startTalkTimer(step.part===1?60:90);}
+}
+function stopRecording(){
+  if(mediaRecorder&&mediaRecorder.state!=='inactive')mediaRecorder.stop();
+  if(recognition){try{recognition.stop();}catch(e){}}
+}
+function onRecStop(){
+  stopWave(); clearTimer();
+  if(stream)stream.getTracks().forEach(t=>t.stop());
+  lastBlob=new Blob(chunks,{type:'audio/webm'});
+  if(lastBlobURL)URL.revokeObjectURL(lastBlobURL);
+  lastBlobURL=URL.createObjectURL(lastBlob);
+  const pb=document.getElementById('playback');
+  pb.src=lastBlobURL; pb.classList.remove('hide');
+  document.getElementById('recBtn').classList.remove('hide');
+  document.getElementById('recBtn').textContent="● Re-record";
+  document.getElementById('stopBtn').classList.add('hide');
+  document.getElementById('liveBadge').classList.add('hide');
+  document.getElementById('saveRecBtn').classList.remove('hide');
+  document.getElementById('bigTimer').textContent="00:00";
+  analyseFluency();
+}
+function resetRecUI(){
+  document.getElementById('recBtn').classList.remove('hide');
+  document.getElementById('recBtn').textContent="● Record answer";
+  document.getElementById('stopBtn').classList.add('hide');
+  document.getElementById('liveBadge').classList.add('hide');
+  document.getElementById('playback').classList.add('hide');
+  document.getElementById('saveRecBtn').classList.add('hide');
+  document.getElementById('transcriptBox').innerHTML='<span class="muted">Start recording to capture a live transcript…</span>';
+  document.getElementById('fluencyStats').innerHTML="";
+}
+
+/* ---------- Waveform ---------- */
+function setupWave(stream){
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  const src=audioCtx.createMediaStreamSource(stream);
+  analyser=audioCtx.createAnalyser(); analyser.fftSize=1024;
+  src.connect(analyser);
+  const cv=document.getElementById('wave'), ctx=cv.getContext('2d');
+  cv.width=cv.clientWidth; cv.height=70;
+  const data=new Uint8Array(analyser.frequencyBinCount);
+  (function draw(){
+    rafId=requestAnimationFrame(draw);
+    analyser.getByteTimeDomainData(data);
+    ctx.fillStyle='#0e1726'; ctx.fillRect(0,0,cv.width,cv.height);
+    ctx.lineWidth=2; ctx.strokeStyle='#52a0ff'; ctx.beginPath();
+    const slice=cv.width/data.length; let x=0;
+    for(let i=0;i<data.length;i++){
+      const v=data[i]/128.0, y=v*cv.height/2;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); x+=slice;
+    }
+    ctx.lineTo(cv.width,cv.height/2); ctx.stroke();
+  })();
+}
+function stopWave(){
+  if(rafId)cancelAnimationFrame(rafId);rafId=null;
+  if(audioCtx){audioCtx.close().catch(()=>{});audioCtx=null;}
+  const cv=document.getElementById('wave');if(cv){const c=cv.getContext('2d');c.fillStyle='#0e1726';c.fillRect(0,0,cv.width,cv.height);}
+}
+
+/* ---------- Live transcription (Web Speech API) ---------- */
+const FILLERS=["um","uh","erm","ah","like","you know","i mean","basically","actually","sort of","kind of"];
+let recStartTime=0;
+function startTranscription(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  document.getElementById('transcriptBox').innerHTML='<span class="muted">Listening…</span>';
+  if(!SR){document.getElementById('transcriptBox').innerHTML='<span class="muted">Live transcript not supported in this browser (try Chrome/Edge). Recording still works.</span>';return;}
+  recognition=new SR(); recognition.lang='en-GB'; recognition.continuous=true; recognition.interimResults=true;
+  transcriptFinal=""; recStartTime=Date.now();
+  recognition.onresult=e=>{
+    let interim="";
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const tr=e.results[i][0].transcript;
+      if(e.results[i].isFinal)transcriptFinal+=tr+" "; else interim+=tr;
+    }
+    renderTranscript(transcriptFinal,interim);
+  };
+  recognition.onerror=()=>{};
+  try{recognition.start();}catch(e){}
+}
+function highlightFillers(text){
+  let html=text;
+  FILLERS.forEach(f=>{
+    const re=new RegExp("\\b"+f.replace(/ /g,"\\s")+"\\b","gi");
+    html=html.replace(re,m=>'<span class="filler">'+m+'</span>');
+  });
+  return html;
+}
+function renderTranscript(fin,interim){
+  const box=document.getElementById('transcriptBox');
+  box.innerHTML=highlightFillers(fin)+'<span class="muted">'+interim+'</span>';
+}
+function analyseFluency(){
+  const text=transcriptFinal.trim();
+  const box=document.getElementById('transcriptBox');
+  const stats=document.getElementById('fluencyStats');
+  if(!text){stats.innerHTML='<span class="small muted">No transcript captured (browser may not support it).</span>';return;}
+  box.innerHTML=highlightFillers(text);
+  const words=text.split(/\s+/).filter(Boolean);
+  const secs=Math.max((Date.now()-recStartTime)/1000,1);
+  const wpm=Math.round(words.length/secs*60);
+  let fillerCount=0;
+  FILLERS.forEach(f=>{const re=new RegExp("\\b"+f.replace(/ /g,"\\s")+"\\b","gi");const m=text.match(re);if(m)fillerCount+=m.length;});
+  const fillerRate=words.length?(fillerCount/words.length*100).toFixed(1):0;
+  let verdict;
+  if(wpm<90)verdict="a little slow — aim for 120–150 wpm for natural fluency.";
+  else if(wpm>180)verdict="quite fast — slow down slightly for clarity and stress.";
+  else verdict="a good, natural pace.";
+  stats.innerHTML=
+    '<span class="stat">Words: <b>'+words.length+'</b></span>'+
+    '<span class="stat">Speech rate: <b>'+wpm+' wpm</b></span>'+
+    '<span class="stat">Filler words: <b>'+fillerCount+'</b> ('+fillerRate+'%)</span>'+
+    '<p class="small" style="margin:8px 0 0">Pace is '+verdict+
+    (fillerCount>3?' Try replacing fillers with a short silent pause — examiners reward controlled silence over "um".':' Filler use is well controlled — nicely done.')+'</p>';
+}
+
+/* ---------- Save / localStorage ---------- */
+const LS_KEY="ielts_speaking_recordings";
+function blobToBase64(blob){return new Promise(r=>{const fr=new FileReader();fr.onloadend=()=>r(fr.result);fr.readAsDataURL(blob);});}
+async function saveRecording(){
+  if(!lastBlob)return;
+  const step=examFlow[flowIdx];
+  const label=step.part===2?step.cue.title:(step.q||"Answer");
+  const b64=await blobToBase64(lastBlob);
+  const list=JSON.parse(localStorage.getItem(LS_KEY)||"[]");
+  list.unshift({id:Date.now(),part:step.part,label,date:new Date().toLocaleString(),
+    transcript:transcriptFinal.trim(),audio:b64});
+  try{localStorage.setItem(LS_KEY,JSON.stringify(list));
+    document.getElementById('recHint').textContent="✔ Saved to My Recordings.";
+  }catch(e){document.getElementById('recHint').textContent="⚠ Storage full — clear old recordings in My Recordings tab.";}
+}
+function renderSaved(){
+  const list=JSON.parse(localStorage.getItem(LS_KEY)||"[]");
+  const el=document.getElementById('savedList');
+  document.getElementById('clearSaved').classList.toggle('hide',list.length===0);
+  if(!list.length){el.innerHTML='<p class="muted small">No saved recordings yet.</p>';return;}
+  el.innerHTML="";
+  list.forEach(item=>{
+    const d=document.createElement('div'); d.className="saved-item";
+    d.innerHTML='<div class="meta">Part '+item.part+' · '+item.date+'</div>'+
+      '<div style="font-weight:600;margin-bottom:6px">'+item.label+'</div>'+
+      '<audio controls src="'+item.audio+'"></audio>'+
+      (item.transcript?'<details><summary>Transcript</summary><div class="small" style="padding-bottom:10px">'+highlightFillers(item.transcript)+'</div></details>':'')+
+      '<button class="btn ghost small" data-del="'+item.id+'" style="margin-top:6px">Delete</button>';
+    el.appendChild(d);
+  });
+  el.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{
+    let l=JSON.parse(localStorage.getItem(LS_KEY)||"[]").filter(x=>x.id!=b.dataset.del);
+    localStorage.setItem(LS_KEY,JSON.stringify(l)); renderSaved();
+  }));
+}
+
+/* ---------- Exam buttons ---------- */
+document.getElementById('startExam').addEventListener('click',()=>startExam(false));
+document.getElementById('startP2only').addEventListener('click',()=>startExam(true));
+document.getElementById('recBtn').addEventListener('click',startRecording);
+document.getElementById('stopBtn').addEventListener('click',stopRecording);
+document.getElementById('saveRecBtn').addEventListener('click',saveRecording);
+document.getElementById('replayQ').addEventListener('click',()=>{
+  const step=examFlow[flowIdx];
+  speak(step.part===2?("Describe "+step.cue.title.replace(/^Describe /i,'')):step.q);
+});
+document.getElementById('nextBtn').addEventListener('click',()=>{
+  if(mediaRecorder&&mediaRecorder.state==='recording')stopRecording();
+  if(flowIdx<examFlow.length-1){flowIdx++;renderStep();}
+  else{document.getElementById('recHint').textContent="That's the end of the test. Go to Self-Score.";
+    document.getElementById('examProgress').style.width="100%";}
+});
+document.getElementById('endExam').addEventListener('click',()=>{
+  if(mediaRecorder&&mediaRecorder.state==='recording')stopRecording();
+  clearTimer();stopWave();
+  document.getElementById('examCard').classList.add('hide');
+  document.getElementById('introCard').classList.remove('hide');
+});
+document.getElementById('toScore').addEventListener('click',()=>{
+  if(mediaRecorder&&mediaRecorder.state==='recording')stopRecording();
+  goTab('score');
+});
+document.getElementById('clearSaved').addEventListener('click',()=>{
+  if(confirm("Delete all saved recordings?")){localStorage.removeItem(LS_KEY);renderSaved();}
+});
+
+/* mic availability hint */
+if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
+  document.getElementById('micState').textContent="✓ Microphone recording supported in this browser.";
+}else{
+  document.getElementById('micState').textContent="⚠ This browser may not support mic recording — use Chrome or Edge.";
+}
+
+/* ============================================================
+   SELF-SCORE
+   ============================================================ */
+const scores={fc:null,lr:null,gra:null,pr:null};
+document.querySelectorAll('.crit').forEach(c=>{
+  const crit=c.dataset.crit, scale=c.querySelector('.scale'), desc=c.querySelector('.desc');
+  for(let b=4;b<=9;b++){
+    const btn=document.createElement('button'); btn.textContent=b;
+    btn.addEventListener('click',()=>{
+      scale.querySelectorAll('button').forEach(x=>x.classList.remove('sel'));
+      btn.classList.add('sel'); scores[crit]=b;
+      const key=b>=8?8:b>=7?7:b>=6?6:6;
+      desc.textContent=BAND_DESC[crit][b>=9?9:key]||BAND_DESC[crit][6];
+      updateBand();
+    });
+    scale.appendChild(btn);
+  }
+});
+function updateBand(){
+  const vals=Object.values(scores).filter(v=>v!=null);
+  if(vals.length<4){document.getElementById('bandNum').textContent="—";
+    document.getElementById('bandWord').textContent="Rate all four criteria to see your estimate.";return;}
+  const avg=vals.reduce((a,b)=>a+b,0)/4;
+  const band=Math.round(avg*2)/2;
+  document.getElementById('bandNum').textContent=band.toFixed(1);
+  const words={5:"Modest user",5.5:"Modest–Competent",6:"Competent user",6.5:"Competent–Good",
+    7:"Good user",7.5:"Good–Very good",8:"Very good user",8.5:"Expert range",9:"Expert user"};
+  document.getElementById('bandWord').textContent=(words[band]||"")+" · average "+avg.toFixed(2);
+}
+document.getElementById('resetScore').addEventListener('click',()=>{
+  Object.keys(scores).forEach(k=>scores[k]=null);
+  document.querySelectorAll('.crit .scale button').forEach(b=>b.classList.remove('sel'));
+  document.querySelectorAll('.crit .desc').forEach(d=>d.textContent="");
+  updateBand();
+});
+
+/* ============================================================
+   MODEL ANSWERS
+   ============================================================ */
+function loadModelQs(){
+  const part=document.getElementById('modelPart').value;
+  const sel=document.getElementById('modelQ'); sel.innerHTML="";
+  MODELS[part].forEach((m,i)=>{const o=document.createElement('option');o.value=i;o.textContent=m.q;sel.appendChild(o);});
+  renderModel();
+}
+function renderModel(){
+  const part=document.getElementById('modelPart').value;
+  const i=document.getElementById('modelQ').value||0;
+  const m=MODELS[part][i]; const area=document.getElementById('modelArea');
+  area.innerHTML='<div class="examiner"><div class="avatar">👤</div><div><div class="who">Question</div><div class="q">'+m.q+'</div></div></div>';
+  [6,7,8,9].forEach(b=>{
+    const d=document.createElement('div');d.className="model";
+    d.innerHTML='<div class="bn">Band '+b+'</div><div>'+m.a[b]+'</div>'+
+      '<button class="btn ghost small" style="margin-top:6px">🔊 Listen</button>';
+    d.querySelector('button').addEventListener('click',()=>speak(m.a[b]));
+    area.appendChild(d);
+  });
+  const note=document.createElement('div');note.className="amber small";
+  note.innerHTML='<b>What lifts the band:</b> notice the move from simple statements (B6) to '+
+    'developed ideas with reasons (B7), precise less-common vocabulary &amp; idiom (B8), and effortless, '+
+    'nuanced argument (B9). <b>Turkish L1 watch:</b> the higher bands never drop articles and use perfect/'+
+    'continuous aspect naturally — e.g. "I\'ve <i>always wanted</i> to" not "I always want to".';
+  area.appendChild(note);
+}
+document.getElementById('modelPart').addEventListener('change',loadModelQs);
+document.getElementById('modelQ').addEventListener('change',renderModel);
+loadModelQs();
+
+/* ============================================================
+   VOCABULARY
+   ============================================================ */
+function loadVocabTopics(){
+  const sel=document.getElementById('vocabTopic');
+  Object.keys(VOCAB).forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;sel.appendChild(o);});
+  renderVocab();
+}
+function renderVocab(){
+  const t=document.getElementById('vocabTopic').value;
+  const area=document.getElementById('vocabArea'); area.innerHTML="";
+  const wrap=document.createElement('div');
+  VOCAB[t].forEach(item=>{
+    const block=document.createElement('div'); block.style.marginBottom="10px";
+    const chip=document.createElement('span'); chip.className="word";
+    chip.innerHTML=item.w+'<span class="ph">'+item.ph+'</span>';
+    chip.addEventListener('click',()=>speak(item.w,0.85));
+    block.appendChild(chip);
+    const ex=document.createElement('div'); ex.className="small muted"; ex.style.marginTop="2px";
+    ex.textContent="e.g. "+item.ex;
+    block.appendChild(ex);
+    wrap.appendChild(block);
+  });
+  area.appendChild(wrap);
+}
+document.getElementById('vocabTopic').addEventListener('change',renderVocab);
+loadVocabTopics();
+</script>
+</body>
+</html>
